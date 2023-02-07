@@ -1,5 +1,6 @@
 from quadra import Quadra
-from cliente import Cliente
+from datetime import datetime, timedelta
+import csv
 
 class Agenda:
     def __init__(self):
@@ -10,6 +11,7 @@ class Agenda:
             Quadra('Quadra 4', '10', '22'),
         ]
         self.reservas = []
+
 
     def verificar_disponibilidade(self, data, hora_inicio, hora_fim):
         quadras_disponiveis = []
@@ -43,23 +45,73 @@ class Agenda:
             }
             self.reservas.append(reserva)
             print("Reserva realizada com sucesso!")
+            self.gravar_reservas()
             return True
         else:
             print("Reserva cancelada!")
             return False
 
-# ====================================================
-if __name__ == '__main__':
-    
-    agenda = Agenda()
 
-    disponivel = agenda.verificar_disponibilidade('2023-02-07', '14', '15', '1')
-
-    if disponivel == []:
-        print("Nenhuma quadra dispinível")
-    else:
-        for quadra in disponivel:
-            print(quadra.nome)
+    def gravar_reservas(self, filename='reservas.csv'):
+        reservas = self.reservas
+        with open(filename, 'w', newline='') as csvfile:
+            fieldnames = ['cliente', 'quadra', 'data', 'hora_inicio', 'hora_fim']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for reserva in reservas:
+                writer.writerow(reserva)
 
 
-    
+    def recuperar_reservas(self, filename='reservas.csv'):
+        with open(filename) as csvfile:
+            reader = csv.DictReader(csvfile)
+            reservas = [row for row in reader]
+            return reservas
+
+
+    def consultar_cliente(self, cliente):
+        lista = self.recuperar_reservas()
+        for item in lista:
+            if cliente in item.values():
+                print(item)
+
+
+    def consultar_reservas_duplicadas(self, quadra, data, hora_inicio, hora_fim):
+        lista = self.recuperar_reservas()
+        for item in lista:
+            if (quadra in item['quadra']) and (data in item['data']) and (hora_inicio in item['hora_inicio']) and (hora_fim in item['hora_fim']):
+                print("Não será possível agendar nessa data e horário")
+                return False
+        return True
+
+
+    def cancelar_reserva(self, cliente, quadra, data, hora_inicio, hora_fim):
+        reserva_encontrada = None
+        reservas = self.recuperar_reservas()
+        for reserva in reservas:
+            if (reserva['cliente'] == cliente) and (reserva['quadra'] == quadra) and (reserva['data'] == data) and (reserva['hora_inicio'] == hora_inicio) and (reserva['hora_fim'] == hora_fim):
+                reserva_encontrada = reserva
+                break
+
+        if reserva_encontrada:
+            hora_limite_cancelamento = int(reserva_encontrada['hora_inicio']) - 3
+            agora = str(datetime.now())
+            if hora_limite_cancelamento < int(agora[11:13]):
+                print('Não é possível cancelar a reserva. O limite é de 3 horas antes do horário início')
+                return False
+
+            confirmacao = input(f'Deseja cancelar a reserva? (s/n)').upper()[0]
+            if confirmacao == 'S':
+                reservas.remove(reserva_encontrada)
+                print("Reserva cancelada com sucesso!")
+                self.reservas = reservas
+                self.gravar_reservas()
+                return True
+            else:
+                print('OK. A reserva não foi cancelada')        
+        
+        else:
+            print('Não há nenhuma reserva para esse cliente nessas condições')
+            return False
+
+  

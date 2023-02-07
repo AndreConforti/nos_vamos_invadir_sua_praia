@@ -51,10 +51,3 @@ class Quadra:
         return True
 
 
-# ======================================================================
-if __name__ == '__main__':
-
-    quadra = Quadra('Quadra 1', '10', '22')
-    teste = quadra.agendar('2023-02-07', 14, 15, 1)
-    print(teste)
-    print(quadra.nome, quadra.agenda)

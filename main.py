@@ -3,6 +3,10 @@ from quadra import Quadra, HorarioForaDoFuncionamento
 from cliente import Cliente
 
 
+
+
+
+
 cliente = Cliente(
     nome='Andre Conforti',
     cpf='278.759.698-32',
@@ -25,7 +29,6 @@ except HorarioForaDoFuncionamento as e:
 
 
 
-input()
 
 
 
@@ -37,19 +40,22 @@ cliente = Cliente(
 )
 
 try:
-    agendar = quadra1.agendar('2023-02-07', '10', '11')
-    confirma = agenda.confirmar_reserva(cliente.nome, '2023-02-07', '10', '11')
+    agendar = quadra1.agendar('2023-02-07', '18', '19')
+    confirma = agenda.confirmar_reserva(cliente.nome, '2023-02-07', '20', '21')
 except HorarioForaDoFuncionamento as e:
     print(e)
 
-for agendamento in agenda.reservas:
-    print(agendamento)
+
+
+teste = agenda.recuperar_reservas()
 
 
 
+agenda.consultar_cliente(cliente.nome)
 
+# agenda.consultar_reservas_duplicadas(quadra1.nome, data='2023-02-07', hora_inicio='10', hora_fim='11')
 
-
+agenda.cancelar_reserva(cliente.nome, quadra1.nome, data='2023-02-07', hora_inicio='20', hora_fim='21')
 
 
 

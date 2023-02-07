@@ -43,17 +43,3 @@ class Cliente():
                 return True
         return False
 
-
-# ====================================================================
-if __name__ == '__main__':
-    cliente = Cliente('Andre Conforti', '278.759.698-32', '19 988377497', 'andre.conforti@gmail.com')
-
-    nome_valido = cliente.veririca_nome()
-    telefone_valido = cliente.verifica_telefone()
-    cpf_valido = cliente.verifica_cpf()
-
-    if nome_valido and telefone_valido and cpf_valido:
-        print("As informações sobre o cliente estão corretas.")
-        # Se as informações estiverem corretas, deve-se então armazená-las no banco de dados
-    else:
-        print("Informações incorretas. Verifique e tente novamente!")
