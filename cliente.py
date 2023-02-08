@@ -1,11 +1,16 @@
+import csv
+import os
+
+
 class Cliente():
     """Classe criada para identificar o cliente que será cadastrado para alugar uma quadra"""
-    def __init__(self, nome, cpf, telefone, email, agendas=[]):
+    def __init__(self, nome, cpf, telefone, email, saldo=0):
         self.nome = nome
         self.cpf = cpf.replace('-', '').replace('.', '').replace(' ', '').strip()
         self.telefone = telefone.replace('-', '').replace('.', '').replace(' ', '').strip()
         self.email = email
-        self.agendas = agendas
+        self.saldo = saldo
+        self.clientes = []
 
 
     def veririca_nome(self):
@@ -43,3 +48,27 @@ class Cliente():
                 return True
         return False
 
+
+    def gravar_clientes(self, nome, cpf, telefone, email, saldo, filename='clientes.csv'):
+        clientes = self.recuperar_clientes()
+        cliente = {
+            'nome'     : nome,
+            'cpf'      : cpf,
+            'telefone' : telefone,
+            'email'    : email,
+            'saldo'    : saldo 
+        }
+        clientes.append(cliente.copy())
+        with open(filename, 'w', newline='') as csvfile:
+            fieldnames = ['nome', 'cpf', 'telefone', 'email', 'saldo']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for cliente in clientes:
+                writer.writerow(cliente)
+
+
+    def recuperar_clientes(self, filename='clientes.csv'):
+        with open(filename) as csvfile:
+            reader = csv.DictReader(csvfile)
+            clientes = [row for row in reader]
+            return clientes
