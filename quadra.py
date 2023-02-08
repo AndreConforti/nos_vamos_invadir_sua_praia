@@ -36,6 +36,7 @@ class Quadra:
             hora_fim_disponivel = self.hora_fim
             data = datetime.strftime(data, "%Y-%m-%d")
             duracao = hora_fim - hora_inicio
+            duracao = int(duracao)
 
         if hora_inicio < hora_inicio_disponivel or hora_fim > hora_fim_disponivel:
             raise HorarioForaDoFuncionamento("O horário fornecido está fora do horário de funcionamento")

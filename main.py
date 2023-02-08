@@ -1,4 +1,4 @@
-from agenda import Agenda
+from agenda import Agenda, ReservaDuplicada
 from quadra import Quadra, HorarioForaDoFuncionamento
 from cliente import Cliente
 import os
@@ -9,9 +9,6 @@ def recuperar_clientes(filename='clientes.csv'):
         reader = csv.DictReader(csvfile)
         clientes = [row for row in reader]
         return clientes
-
-
-
 
 
 
@@ -72,27 +69,60 @@ def main():
             input()
 
         elif opc == 3:
+            os.system('clear' or None)
+            quadra = int(input('Selecione a quadra: (1, 2, 3 ou 4) '))
             data = input('informa a data (yyyy-mm-dd): ')
-            hora_inicio = input('Informe o horário: ')
+            hora_inicio = input('Informe o início: ')
             hora_fim = input('Informe o término: ')
             nome = input('Nome do cliente: ')
-            quadra = int(input('Escolha uma quadra: (1, 2, 3 ou 4): '))
             if quadra == 1:
                 try:
-                    quadra1.agendar(data, hora_inicio, hora_fim)
+                    quadra1.agendar(data, hora_inicio, hora_fim)      
                     agenda.confirmar_reserva(nome, data, hora_inicio, hora_fim)
                 except HorarioForaDoFuncionamento as e:
                     print(e)
-                
-            elif quadra == 2:
-                quadra2.agendar(data, hora_inicio, hora_fim)
-            elif quadra == 3:
-                quadra3.agendar(data, hora_inicio, hora_fim)
-            elif quadra == 4:
-                quadra4.agendar(data, hora_inicio, hora_fim)
-
+                except ReservaDuplicada as e:
+                    print(e)
+            if quadra == 2:
+                try:
+                    quadra2.agendar(data, hora_inicio, hora_fim)      
+                    agenda.confirmar_reserva(nome, data, hora_inicio, hora_fim)
+                except HorarioForaDoFuncionamento as e:
+                    print(e)
+                except ReservaDuplicada as e:
+                    print(e)
+            if quadra == 3:
+                try:
+                    quadra3.agendar(data, hora_inicio, hora_fim)      
+                    agenda.confirmar_reserva(nome, data, hora_inicio, hora_fim)
+                except HorarioForaDoFuncionamento as e:
+                    print(e)
+                except ReservaDuplicada as e:
+                    print(e)
+            if quadra == 4:
+                try:
+                    quadra4.agendar(data, hora_inicio, hora_fim)      
+                    agenda.confirmar_reserva(nome, data, hora_inicio, hora_fim)
+                except HorarioForaDoFuncionamento as e:
+                    print(e)
+                except ReservaDuplicada as e:
+                    print(e)
+            else:
+                print('Opção inválida')
 
             input()
+
+        elif opc == 4:
+            os.system('clear' or None)
+            lista_reservas = agenda.recuperar_reservas()
+            for registro in lista_reservas:
+                print(registro)
+            
+            input()
+
+
+        elif opc ==5:
+            os.system('clear' or None)
 
 
         elif opc == 6:

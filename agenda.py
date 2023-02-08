@@ -2,6 +2,10 @@ from quadra import Quadra
 from datetime import datetime, timedelta
 import csv
 
+class ReservaDuplicada(Exception):
+    pass 
+
+
 class Agenda:
     def __init__(self):
         self.quadras = [
@@ -22,34 +26,39 @@ class Agenda:
 
 
     def confirmar_reserva(self, cliente, data, hora_inicio, hora_fim):
-        disponiveis = self.verificar_disponibilidade(data, hora_inicio, hora_fim)
-        if len(disponiveis) == 0:
-            print('Desculpe não há quadras disponíveis nesse horário')
-            return False
         
-        print('Quadras disponíveis:')
-        for i, quadra in enumerate(disponiveis):
-            print(f'{i + 1} - {quadra}')
+            disponiveis = self.verificar_disponibilidade(data, hora_inicio, hora_fim)
+            if len(disponiveis) == 0:
+                print('Desculpe não há quadras disponíveis nesse horário')
+                return False
+            
+            print('Quadras disponíveis:')
+            for i, quadra in enumerate(disponiveis):
+                print(f'{i + 1} - {quadra}')
 
-        escolha = int(input('Escolha a quadra (digite o número): '))
-        quadra = disponiveis[escolha - 1]
+            escolha = int(input('Escolha a quadra (digite o número): '))
+            quadra = disponiveis[escolha - 1]
+                
+            if self.consultar_reservas_duplicadas(str(quadra.nome), data, hora_inicio, hora_fim):
+                raise ReservaDuplicada("Já existe reserva nessas condições")
 
-        confirmacao = input(f'Deseja reservar a quadra {quadra} para o dia {data} das {hora_inicio} às {hora_fim}? (s/n)').upper()[0]
-        if confirmacao == 'S':
-            reserva = {
-                'cliente'    : cliente,
-                'quadra'     : str(quadra.nome),
-                'data'       : data,
-                'hora_inicio': hora_inicio,
-                'hora_fim'   : hora_fim 
-            }
-            self.reservas.append(reserva)
-            print("Reserva realizada com sucesso!")
-            self.gravar_reservas()
-            return True
-        else:
-            print("Reserva cancelada!")
-            return False
+            confirmacao = input(f'Deseja reservar a quadra {quadra} para o dia {data} das {hora_inicio} às {hora_fim}? (s/n)').upper()[0]
+            if confirmacao == 'S':
+                reserva = {
+                    'cliente'    : cliente,
+                    'quadra'     : str(quadra.nome),
+                    'data'       : data,
+                    'hora_inicio': hora_inicio,
+                    'hora_fim'   : hora_fim 
+                }
+                self.reservas.append(reserva)
+                print("Reserva realizada com sucesso!")
+                self.gravar_reservas()
+                return True
+            else:
+                print("Reserva cancelada!")
+                return False
+
 
 
     def gravar_reservas(self, filename='reservas.csv'):
@@ -80,8 +89,7 @@ class Agenda:
         lista = self.recuperar_reservas()
         for item in lista:
             if (quadra in item['quadra']) and (data in item['data']) and (hora_inicio in item['hora_inicio']) and (hora_fim in item['hora_fim']):
-                print("Não será possível agendar nessa data e horário")
-                return False
+                raise ReservaDuplicada("Não será possível agendar nessa data e horário")
         return True
 
 
