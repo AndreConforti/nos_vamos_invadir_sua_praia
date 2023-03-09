@@ -19,8 +19,8 @@ class Logger:
         return cls._instance
 
     def log(self, level, message):
-        #print(os.getenv("LOG_ENABLED"))
-        if (os.getenv("LOG_ENABLED")==True):
+        #os.load_dotenv()
+        if (os.getenv("LOG_ENABLED")=='True'):            
             if level == "debug":
                 self.logger.debug(message)
             elif level == "info":

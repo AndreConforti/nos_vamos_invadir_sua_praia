@@ -1,85 +1,51 @@
 from datetime import datetime
 from pydantic import BaseModel, Extra
 
-class Quadra(BaseModel):
-    nome: str
-    horarios:dict= {'0' : {'ini': 0, 'fim' : 0}, # Horários, sendo Segunda = 0 e Domingo = 6
-            '1' : {'ini': 10, 'fim' : 22}, 
-            '2' : {'ini': 10, 'fim' : 22}, 
-            '3' : {'ini': 10, 'fim' : 22}, 
-            '4' : {'ini': 10, 'fim' : 22}, 
-            '5' : {'ini': 10, 'fim' : 22}, 
-            '6' : {'ini': 9, 'fim' : 18}}
 
-  #  def __init__(self):
-    #    asser
+class Locacao(BaseModel):
+    nome_quadra: str
+    min_players: int
+    max_players: int
+
+    def get_locacao_info(self):
+        return f"{self.nome} é uma opção de locação."
+
+
+class Quadra_BeachTenis(Locacao):
+    drenagem = bool
+    qtd_raquete_locacao = int
+
+   # def __init__(self, drenagem):
+   #    self.min_players = 2
+   #    self.max_players = 6
+   #    self.drenagem = drenagem
+
+    def get_locacao_info(self):
+        return f"A quadra de Beach Tênis '{self.nome}' atende de {self.min_players} a {self.max_players} participantes."
+
+    def drenagem(self):
+        if self.drenagem:
+            return f"{self.nome} possui drenagem."
         
-
-    def __str__(self):
-        return str(self.nome)
-
-    # Método para consultar disponibilidade de agendamento
-    """
-        Obs: se vamos trabalhar com duração, porque precisa indicar a hora_fim? 
-        Não seria a hora inicio + duracao-1?
-    """
-    def agendar(self, data, hora_inicio, hora_fim, duracao):
-
-        # trata as variáveis fornecidas
-        data = datetime.strptime(data, '%Y-%m-%d').date()   # Extrai a data da string
-        hora_inicio = int(hora_inicio) # Ignora decimais para definição da hora
-        ###hora_fim = int(hora_fim) # Ignora decimais para definição da hora
-        duracao = int(duracao) # Ignora decimais para definição da duração
+        return f"{self.nome} não possui drenagem"
         
-        # Verifica se é uma duração válida
-        if duracao not in [1, 3]:
-            return False
+class Quadra_Futebol(Locacao):
+    gramado: str
+    locar_bola: bool
 
-        hora_fim = hora_inicio + duracao - 1 # Calcula a hora_fim conforme duração escolhida
-        dia_semana = data.weekday() # Identifica o dia da semana
-
-        """
-        if data.weekday() == 6:  # Domingo
-            hora_inicio_disponivel = self.hora_inicio_domingo
-            hora_fim_disponivel = self.hora_fim_domingo
-            
-        elif data.weekday() == 0:  # Segunda
-            return False
+    def get_locacao_info(self):
+        if self.locar_bola:
+            bola_reservada = "Bola reservada."
         else:
-            hora_inicio_disponivel = self.hora_inicio
-            hora_fim_disponivel = self.hora_fim
-            data = datetime.strftime(data, "%Y-%m-%d")
+            bola_reservada = "Sem reserva de bola."
 
-        if hora_inicio < hora_inicio_disponivel or hora_fim > hora_fim_disponivel:
-            return False
-        """
-            
-        if hora_inicio < self.horarios[dia_semana]['ini'] or hora_fim > self.horarios[dia_semana]['fim']:
-            return False
-        
-        hora_atual = hora_inicio
+        return f"A quadra de Futebol '{self.nome}' atende de {self.min_players} a {self.max_players} participantes. {bola_reservada}"
 
-        # Obs: pela regra calculada acima, este cálculo não é mais necessário:
-        #if (hora_fim - hora_atual) % 2 == 0:
-        #    return False
+'''
+quadra_beachtenis = Quadra_BeachTenis.parse_obj({'nome':"Quadra 1", 'min_players': 2, 'max_players': 4, 'drenagem':False})
+print (f"{quadra_beachtenis.get_locacao_info()}")
+#print (f"{quadra_beachtenis.nome} atende de {quadra_beachtenis.min_players} a {quadra_beachtenis.max_players} participantes.")
 
-        # Se não existe nenhuma agenda disponível, inicia zerada
-        if data not in self.agenda:
-            self.agenda[data] = []
-
-        while hora_atual < hora_fim:
-            if data in self.agenda and hora_atual in self.agenda[data]:
-                return False
-            self.agenda[data].append(hora_atual)
-            hora_atual += 1 if duracao == 3 else 3
-        return True
-
-
-
-# ======================================================================
-if __name__ == '__main__':
-
-    quadra = Quadra('Quadra 1', '10', '22')
-    teste = quadra.agendar('2023-02-07', 14, 15, 1)
-    print(teste)
-    print(quadra.nome, quadra.agenda)
+quadra_futebol = Quadra_Futebol.parse_obj({'nome':"Quadra 1", 'min_players': 2, 'max_players': 4, 'gramado':'Sintético', 'locar_bola':True})
+print (f"{quadra_futebol.get_locacao_info()}")
+'''

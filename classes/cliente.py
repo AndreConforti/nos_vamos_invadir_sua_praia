@@ -7,6 +7,7 @@ class Cliente(BaseModel):
     cpf : str
     telefone : str
     email : EmailStr 
+    #endereco : str
 
     @validator('nome')
     def verifica_nome(cls, value):

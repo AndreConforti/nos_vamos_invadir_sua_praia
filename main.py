@@ -1,7 +1,6 @@
 import sys
 import json
 from classes.agenda import Agenda
-from pydantic import BaseModel
 from classes.reserva import Reserva
 from classes.cliente import Cliente
 
@@ -24,7 +23,7 @@ def quadra_disponivel():
         print('Nenhuma quadra disponível neste horário!')
     else:
         for quadra in quadras:
-            print ('Quadras disponíveis:', quadra.nome)
+            print ('Quadras disponíveis:', quadra.nome_quadra)
     print('----------------------------------------------------------------')
     print('----------------------------------------------------------------')
 
@@ -47,9 +46,15 @@ def reservas_cliente():
         for reserva in reservas:
             print('----------------------------------------------------------------')
             print (f'Reserva {count_res}:')
-            print(f'{reserva.quadra.nome} - dia {reserva.data}, das {reserva.hora_inicio}h até {reserva.hora_fim()}h, {reserva.duracao} hora(s).')
+            print(f'{reserva.quadra.nome_quadra} - dia {reserva.data}, das {reserva.hora_inicio}h até {reserva.hora_fim()}h, {reserva.duracao} hora(s).')
+            if reserva.data_pago != None:
+                print(f'Pagamento realizado em: {reserva.data_pago}')
+            else:
+                print(f'Pagamento pendente.')
+
             reserva_dict = vars(reserva.cliente)
             print(f'''Cliente: {json.dumps(reserva_dict, indent=4)}''')
+            
             count_res += 1
     print('----------------------------------------------------------------')
     print('----------------------------------------------------------------')
@@ -77,9 +82,80 @@ def agendar():
 
     # Retorno
     if quadra:
-        print(f'Quadra [{quadra.nome}] reservada com sucesso!')
+        print(f'Quadra [{quadra.nome_quadra}] reservada com sucesso!')
     else:
         print(f'Nenhuma quadra disponível neste horário')
+
+
+# Opção 4 = Cancelar quadra para cliente
+def cancelar_reserva():
+    # Parâmetros
+    print('Dados da reserva:')
+    data=input('Digite a data no formato yyyy-mm-dd:')
+    hora_ini=input('Informe horário de início:')
+
+    # Chamada
+    reserva = agenda.cancelar_reserva(data=data, hora_inicio=hora_ini)
+
+    # Retorno
+    if reserva:
+        print(f'Reserva cancelada com sucesso!')
+    else:
+        print(f'Nenhuma reserva encontrada neste horário')
+
+
+# Opção 5 = Cancelar quadra para cliente
+def pagar_reserva():
+    # Parâmetros
+    print('Dados da reserva:')
+    data=input('Digite a data no formato yyyy-mm-dd:')
+    hora_ini=input('Informe horário de início:')
+    print('Dados pagamento:')
+    data_pago = input('Digite a data de pagamento no formato yyyy-mm-dd:')
+
+    # Chamada
+    reserva = agenda.pagar_reserva(data=data, hora_inicio=hora_ini, data_pago=data_pago)
+
+    # Retorno
+    if reserva:
+        print(f'Reserva paga com sucesso!')
+    else:
+        print(f'Nenhuma reserva encontrada neste horário')
+
+
+# Opção 6 = Consultar Débito Cliente
+def debitos_cliente():
+    # Parâmetros
+    nome=input('Informe o nome do cliente:')
+
+    # Chamada
+    reservas = agenda.reservas_cliente (nome)
+
+    # Retorno
+    print('----------------------------------------------------------------')
+    if not reservas:
+        print('Nenhuma reserva localizada!')
+    else:
+        #for reserva in reservas:
+        #    print ('Reservas realizadas:', reserva)
+        count_res = 0
+        debito = 0
+        for reserva in reservas:
+            if reserva.data_pago == None:
+                debito += reserva.valor_reserva()
+                count_res += 1
+
+        print('----------------------------------------------------------------')
+        if debito>0:
+            print (f'Reservas com débito: {count_res}')
+            print (f'Valor total do débito {debito}')
+           
+        else:
+            print ('Nenhum débito encontrado.')
+
+        print('----------------------------------------------------------------')
+        print('----------------------------------------------------------------')
+
 
 def menu_option(opt):
     
@@ -95,6 +171,15 @@ def menu_option(opt):
     if opt == 3:
         agendar()
 
+    if opt == 4:
+        cancelar_reserva()
+
+    if opt == 5:
+        pagar_reserva()
+
+    if opt == 6:
+        debitos_cliente()
+    
     return opt
 
 
@@ -103,7 +188,7 @@ if len(sys.argv) == 1:
     opt = 0
     print ('Olá! Parece que você não escolheu nenhuma opção válida!')
 else:
-    opt = sys.argv[1]
+    opt = int(sys.argv[1])
 
 
 
@@ -129,7 +214,7 @@ while (opt != 7):
 
     
    
-
+agenda.save_agenda()
 print ('Obrigado por utilizar nossos serviços!')
 
 

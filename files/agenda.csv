@@ -1,0 +1,4 @@
+nome,cpf,telefone,email,nome_quadra,min_players,max_players,data,hora_inicio,duracao,data_pago
+Julay,1111111112,999888999,a@b.com,Quadra 1,2,4,2023-03-07,10,3,
+Julay,1111111112,999888999,a@b.com,Quadra 1,2,4,2023-03-07,15,1,2023-03-09
+Tisco,3245323324,23322333,ju@lay.com,Quadra 1,2,4,2023-03-08,15,1,
