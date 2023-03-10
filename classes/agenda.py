@@ -79,10 +79,45 @@ class Agenda(BaseModel):
         self.get_reservas()
         
     # 
-    def agendar(self, cliente, data, hora_ini, duracao):
+
+    from datetime import datetime
+
+    def is_active_week(self, data):
+        # Obter as informações de data, semana e dia da semana para a data fornecida
+        ano, semana, dia_da_semana = data.isocalendar()
+        
+        # Obter as informações de data, semana e dia da semana para a data atual
+        ano_atual, semana_atual, dia_da_semana_atual = datetime.now().isocalendar()
+        
+        # Comparar se a semana da data fornecida é a mesma que a semana atual
+        if ano == ano_atual and semana == semana_atual:
+            return True
+        
+        return False
+
+    def is_active_month(self, data):
+        # Obter o mês da data fornecida
+        mes = data.month
+        
+        # Obter o ano da data fornecida
+        ano = data.year
+        
+        # Obter o mês atual
+        mes_atual = datetime.now().month
+        
+        # Obter o ano atual
+        ano_atual = datetime.now().year
+        
+        # Comparar se o mês e o ano da data fornecida são iguais ao mês e ano atuais
+        if mes == mes_atual and ano == ano_atual:
+            return True
+        
+        return False
+    
+    def agendar(self, cliente, data, hora_ini, duracao, quadra):
         logger = Logger()
 
-        quadras = self.quadra_disponivel (data, hora_ini, duracao)
+        quadras = self.quadra_disponivel (data, hora_ini, duracao, quadra)
         logger.log('debug', '----------------------------------------------------------------')
         if not quadras:
             # TODO: retorna erro?
@@ -127,50 +162,89 @@ class Agenda(BaseModel):
 
 
     # Método para checar as reservas 
-    def quadra_disponivel(self, data, hora_inicio, duracao):
+    def quadra_disponivel(self, data, hora_inicio, duracao, quadra_des = 0):
         logger = Logger()
         quadras_disponiveis = []
         hora_inicio = int(hora_inicio)
         hora_fim = hora_inicio + int(duracao)
         logger.log('debug', f'Buscando dia {data} das {hora_inicio} até as {hora_fim}')
 
+        try:
+            quadra_des = int(quadra_des)
+        except:
+            quadra_des = 0
+
+        date_obj = datetime.strptime(data, "%Y-%m-%d").date()
+        
         # TODO: validar valores fornecidos
 
         for quadra in self.quadras:
-            logger.log('debug', f'Checando quadra {quadra.nome_quadra}')
-            quadra_livre = True
-            for reserva_vig in self.reservas:
-                # Hora Inicio < Fim e Hora Fim > inicio 
-                if (quadra.nome_quadra == reserva_vig.quadra.nome_quadra \
-                    and data == reserva_vig.data \
-                    and hora_inicio <= int(reserva_vig.hora_fim()) 
-                    and hora_fim >= reserva_vig.hora_inicio):
-                    logger.log('warning', f'Quadra {quadra.nome_quadra} não está disponível')
-                    logger.log('warning', f'{reserva_vig.data} {reserva_vig.hora_inicio} {reserva_vig.hora_fim()}')
-                    quadra_livre = False
-                    break
             
-            if quadra_livre:
-                logger.log('debug', f'Quadra {quadra.nome_quadra} está disponível')
-                quadras_disponiveis.append(quadra)
+            #breakpoint()
+            if quadra.nome_quadra == f'Quadra {quadra_des}' or quadra_des == 0:
+                quadra_livre = True
+                #breakpoint()
+                logger.log('debug', f'Checando quadra {quadra.nome_quadra}')
+                for reserva_vig in self.reservas:
+                    # Hora Inicio < Fim e Hora Fim > inicio 
+                    if (quadra.nome_quadra == reserva_vig.quadra.nome_quadra \
+                        and date_obj == reserva_vig.data \
+                        and hora_inicio <= int(reserva_vig.hora_fim()) 
+                        and hora_fim >= reserva_vig.hora_inicio):
+                        logger.log('warning', f'Quadra {quadra.nome_quadra} não está disponível')
+                        logger.log('warning', f'{reserva_vig.data} {reserva_vig.hora_inicio} {reserva_vig.hora_fim()}')
+                        quadra_livre = False
+                        break
+                
+                if quadra_livre:
+                    logger.log('debug', f'Quadra {quadra.nome_quadra} está disponível')
+                    quadras_disponiveis.append(quadra)
                 
         return quadras_disponiveis
     
     # Método para criar nova reserva
-    def reservas_cliente(self, nome_cpf):
+    def reservas_cliente(self, nome_cpf, quadra_des = 0):
         logger = Logger()
         reservas_cliente = []
         
+        try:
+            quadra_des = int(quadra_des)
+        except:
+            quadra_des = 0
+        
+       
+
         # TODO: validar valores fornecidos
 
         logger.log('debug', f'Buscando cliente com nome ou CPF igual a {nome_cpf}')        
         for reserva_vig in self.reservas:
-            # Hora Inicio < Fim e Hora Fim > inicio 
-            if (nome_cpf == reserva_vig.cliente.nome or nome_cpf == reserva_vig.cliente.cpf):
-                logger.log('debug', f'Reserva: {reserva_vig}')
-                reservas_cliente.append(reserva_vig)
+            if reserva_vig.quadra.nome_quadra == f'Quadra {quadra_des}' or quadra_des == 0:
+                # Hora Inicio < Fim e Hora Fim > inicio 
+                if (nome_cpf == reserva_vig.cliente.nome or nome_cpf == reserva_vig.cliente.cpf):
+                    logger.log('debug', f'Reserva: {reserva_vig}')
+                    reservas_cliente.append(reserva_vig)
                 
         return reservas_cliente
+
+
+    def debito_cliente(self, nome_cpf):
+        
+        count_res_week = 0
+        count_res_month = 0
+        debito_semana = 0
+        debito_mes = 0
+        for reserva in self.reservas_cliente(nome_cpf):
+            if reserva.data_pago == None:
+                if self.is_active_week(reserva.data):
+                    debito_semana += reserva.valor_reserva()
+                    count_res_week += 1
+
+                if self.is_active_month(reserva.data):
+                    debito_mes += reserva.valor_reserva()
+                    count_res_month += 1
+            
+        return count_res_week, debito_semana, count_res_month, debito_mes
+
 
     def cancelar_reserva(self, data, hora_inicio):
         logger = Logger()

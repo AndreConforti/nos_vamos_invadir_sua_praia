@@ -1,4 +1,4 @@
-import sys
+import sys, os, keyboard
 import json
 from classes.agenda import Agenda
 from classes.reserva import Reserva
@@ -7,33 +7,51 @@ from classes.cliente import Cliente
 # Cria a instância de Agenda
 agenda = Agenda()
 
+def wait_key():
+    # Solicitar que o usuário pressione qualquer tecla para continuar
+    print("Pressione qualquer tecla para continuar...")
+
+    # Esperar que o usuário pressione qualquer tecla
+    keyboard.read_event()
+
 # Opção 1 = Verificar Quadra Disponível
 def quadra_disponivel():
+    print('----------------------------------------------------------------')
+    print('-- PESQUISA DE QUADRAS DISPONÍVEIS')
     # Parâmetros
     data=input('Digite a data no formato yyyy-mm-dd:')
+    quadra_des=input('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):')
     hora_ini=input('Informe horário de início:')
     duracao=input('Informe duração desejada (1 ou 3):')
 
     # Chamada
-    quadras = agenda.quadra_disponivel (data, hora_ini, duracao)
+    quadras = agenda.quadra_disponivel (data, hora_ini, duracao, quadra_des)
     
     # Retorno
     print('----------------------------------------------------------------')
     if not quadras:            
-        print('Nenhuma quadra disponível neste horário!')
+        print('Quadra indisponível neste horário!')
     else:
         for quadra in quadras:
             print ('Quadras disponíveis:', quadra.nome_quadra)
+    
     print('----------------------------------------------------------------')
     print('----------------------------------------------------------------')
+
+    wait_key()
 
 # Opção 2 = Consultar Agendamentos Cliente
 def reservas_cliente():
+
+    print('----------------------------------------------------------------')
+    print('-- PESQUISA RESERVAS DE CLIENTES')
+
     # Parâmetros
     nome=input('Informe o nome do cliente:')
+    quadra_des=input('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):')
 
     # Chamada
-    reservas = agenda.reservas_cliente (nome)
+    reservas = agenda.reservas_cliente (nome, quadra_des)
 
     # Retorno
     print('----------------------------------------------------------------')
@@ -56,11 +74,17 @@ def reservas_cliente():
             print(f'''Cliente: {json.dumps(reserva_dict, indent=4)}''')
             
             count_res += 1
+    
     print('----------------------------------------------------------------')
     print('----------------------------------------------------------------')
+    
+    wait_key()
 
 # Opção 3 = Reservar quadra para cliente
 def agendar():
+    print('----------------------------------------------------------------')
+    print('-- AGENDAR UMA QUADRA')
+
     # Parâmetros
     print('Dados Cliente:')
     nome=input('Informe o nome do cliente:')
@@ -69,6 +93,7 @@ def agendar():
     email=input('Informe o e-mail do cliente:')
     print('Dados do Agendamento:')
     data=input('Digite a data no formato yyyy-mm-dd:')
+    quadra_des=input('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):')
     hora_ini=input('Informe horário de início:')
     duracao=input('Informe duração desejada (1 ou 3):')
     try:    # Adiciona cliente validando os valores informados
@@ -78,17 +103,24 @@ def agendar():
         return
 
     # Chamada
-    quadra = agenda.agendar(cliente=cliente, data=data, hora_ini=hora_ini, duracao=duracao)
+    quadra = agenda.agendar(cliente=cliente, data=data, hora_ini=hora_ini, duracao=duracao, quadra=quadra_des)
 
     # Retorno
     if quadra:
         print(f'Quadra [{quadra.nome_quadra}] reservada com sucesso!')
     else:
-        print(f'Nenhuma quadra disponível neste horário')
+        print(f'Quadra indisponível neste horário')
 
+    print('----------------------------------------------------------------')
+    print('----------------------------------------------------------------')   
+
+    wait_key()
 
 # Opção 4 = Cancelar quadra para cliente
 def cancelar_reserva():
+    print('----------------------------------------------------------------')
+    print('-- CANCELAR UMA RESERVA REALIZADA')
+
     # Parâmetros
     print('Dados da reserva:')
     data=input('Digite a data no formato yyyy-mm-dd:')
@@ -103,9 +135,16 @@ def cancelar_reserva():
     else:
         print(f'Nenhuma reserva encontrada neste horário')
 
+    print('----------------------------------------------------------------')
+    print('----------------------------------------------------------------')   
+
+    wait_key()
 
 # Opção 5 = Cancelar quadra para cliente
 def pagar_reserva():
+    print('----------------------------------------------------------------')
+    print('-- PAGAR UMA RESERVA')
+
     # Parâmetros
     print('Dados da reserva:')
     data=input('Digite a data no formato yyyy-mm-dd:')
@@ -122,43 +161,46 @@ def pagar_reserva():
     else:
         print(f'Nenhuma reserva encontrada neste horário')
 
+    print('----------------------------------------------------------------')
+    print('----------------------------------------------------------------')   
+
+    wait_key()
 
 # Opção 6 = Consultar Débito Cliente
 def debitos_cliente():
+    print('----------------------------------------------------------------')
+    print('-- CONSULTAR DÉBITOS CLIENTE')
+
     # Parâmetros
     nome=input('Informe o nome do cliente:')
 
-    # Chamada
-    reservas = agenda.reservas_cliente (nome)
+    count_res_week, debito_semana, count_res_month, debito_mes = agenda.debito_cliente(nome)
 
     # Retorno
     print('----------------------------------------------------------------')
-    if not reservas:
-        print('Nenhuma reserva localizada!')
+    if count_res_week+count_res_month>0:
+
+        print('----------------------------------------------------------------')
+    
+        print (f'Quantidade reservas com débito na semana atual: {count_res_week}')
+        print (f'Valor total do débito da semana corrente: {debito_semana}')
+        
+        print (f'Quantidade reservas com débito no mês atual: {count_res_month}')
+        print (f'Valor total do débito do mês corrente: {debito_mes}')
+
     else:
-        #for reserva in reservas:
-        #    print ('Reservas realizadas:', reserva)
-        count_res = 0
-        debito = 0
-        for reserva in reservas:
-            if reserva.data_pago == None:
-                debito += reserva.valor_reserva()
-                count_res += 1
+        print('Nenhum débito encontrado.')
+        
+    print('----------------------------------------------------------------')
+    print('----------------------------------------------------------------')   
 
-        print('----------------------------------------------------------------')
-        if debito>0:
-            print (f'Reservas com débito: {count_res}')
-            print (f'Valor total do débito {debito}')
-           
-        else:
-            print ('Nenhum débito encontrado.')
-
-        print('----------------------------------------------------------------')
-        print('----------------------------------------------------------------')
+    wait_key()
 
 
 def menu_option(opt):
     
+    os.system('cls' if os.name == 'nt' else 'clear')
+
     if not isinstance(opt, int):
         return 0
     
@@ -196,6 +238,8 @@ while (opt != 7):
 
     opt = menu_option(opt)
     
+    os.system('cls' if os.name == 'nt' else 'clear')
+
     # Menu:
     print ('''
     Temos as seguintes opções:
