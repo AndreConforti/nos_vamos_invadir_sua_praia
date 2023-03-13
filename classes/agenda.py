@@ -132,31 +132,34 @@ class Agenda(BaseModel):
         self.reservas.append(reserva)
         return quadras[0]
     
+    def make_reg(reserva):
+        registro = dict()
+
+        registro["nome"] = reserva.cliente.nome
+        registro["cpf"] = reserva.cliente.cpf
+        registro["telefone"] = reserva.cliente.telefone
+        registro["email"] = reserva.cliente.email
+        registro["nome_quadra"] = reserva.quadra.nome_quadra
+        registro["min_players"] = reserva.quadra.min_players
+        registro["max_players"] = reserva.quadra.max_players
+        registro["data"] = reserva.data
+        registro["hora_inicio"] = reserva.hora_inicio
+        registro["duracao"] = reserva.duracao
+        registro["data_pago"] = reserva.data_pago
+
+        return registro
 
     # Salva a agenda ao encerrar sistema
-    def save_agenda(self):
+    def save_agenda(self, file_path = "files/agenda.csv"):
         # Gravando agenda
         fieldnames = list(Cliente.__fields__.keys())
         fieldnames.extend(list(Quadra_BeachTenis.__fields__.keys()))
         fieldnames.extend(["data", "hora_inicio", "duracao", "data_pago"])
-        with open("files/agenda.csv", "w", newline="") as arquivo:
+        with open(file_path, "w", newline="") as arquivo:
             writer = csv.DictWriter(arquivo, fieldnames=fieldnames)
             writer.writeheader()
             for reserva in self.reservas:
-                registro = dict()
-                 
-                registro["nome"] = reserva.cliente.nome
-                registro["cpf"] = reserva.cliente.cpf
-                registro["telefone"] = reserva.cliente.telefone
-                registro["email"] = reserva.cliente.email
-                registro["nome_quadra"] = reserva.quadra.nome_quadra
-                registro["min_players"] = reserva.quadra.min_players
-                registro["max_players"] = reserva.quadra.max_players
-                registro["data"] = reserva.data
-                registro["hora_inicio"] = reserva.hora_inicio
-                registro["duracao"] = reserva.duracao
-                registro["data_pago"] = reserva.data_pago
-
+                registro = self.make_reg(reserva)                
                 # breakpoint()
                 writer.writerow(registro)
 

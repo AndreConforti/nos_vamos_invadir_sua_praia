@@ -1,5 +1,5 @@
 import sys, os, keyboard
-import json
+import json, datetime
 from classes.agenda import Agenda
 from classes.reserva import Reserva
 from classes.cliente import Cliente
@@ -14,15 +14,40 @@ def wait_key():
     # Esperar que o usuário pressione qualquer tecla
     keyboard.read_event()
 
+def input_value(msg, type_value, values_accepted = None):
+    result = None
+    while True:
+        try:
+            if type_value == 'int':
+                result = int(input(msg))
+            if type_value == 'date':
+                result = datetime.strptime(input(msg), "%Y-%m-%d").date()
+            if type_value == 'str':
+                result = input(msg)
+            if values_accepted != None:
+                if result in values_accepted:
+                    break
+                print ('Opção inválida, digite novamente.')
+            else:
+                break
+        except ValueError:
+            print("Opção inválida, digite novamente.")
+            continue
+        finally:
+            pass
+    
+    return result
+        
+
 # Opção 1 = Verificar Quadra Disponível
 def quadra_disponivel():
     print('----------------------------------------------------------------')
     print('-- PESQUISA DE QUADRAS DISPONÍVEIS')
     # Parâmetros
-    data=input('Digite a data no formato yyyy-mm-dd:')
-    quadra_des=input('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):')
-    hora_ini=input('Informe horário de início:')
-    duracao=input('Informe duração desejada (1 ou 3):')
+    data=input_value('Digite a data no formato yyyy-mm-dd:', 'date')
+    quadra_des=input_value('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):', "int", [0, 1, 2, 3, 4])
+    hora_ini=input_value('Informe horário de início:', "int", range(9, 23))
+    duracao=input_value('Informe duração desejada (1 ou 3):', "int", [1, 3])
 
     # Chamada
     quadras = agenda.quadra_disponivel (data, hora_ini, duracao, quadra_des)
@@ -47,8 +72,8 @@ def reservas_cliente():
     print('-- PESQUISA RESERVAS DE CLIENTES')
 
     # Parâmetros
-    nome=input('Informe o nome do cliente:')
-    quadra_des=input('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):')
+    nome=input_value('Informe o nome do cliente:', "str")
+    quadra_des=input_value('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):', int, [0, 1, 2, 3, 4])
 
     # Chamada
     reservas = agenda.reservas_cliente (nome, quadra_des)
@@ -92,10 +117,10 @@ def agendar():
     telefone=input('Informe o telefone do cliente:')
     email=input('Informe o e-mail do cliente:')
     print('Dados do Agendamento:')
-    data=input('Digite a data no formato yyyy-mm-dd:')
-    quadra_des=input('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):')
-    hora_ini=input('Informe horário de início:')
-    duracao=input('Informe duração desejada (1 ou 3):')
+    data=input_value('Digite a data no formato yyyy-mm-dd:', 'date')
+    quadra_des=input_value('Informe a quadra desejada (1 a 4, ou 0 para qualquer quadra):', 'int', [0, 1, 2, 3, 4])
+    hora_ini=input_value('Informe horário de início:', 'int', range(9, 23))
+    duracao=input_value('Informe duração desejada (1 ou 3):', 'int', [1, 3])
     try:    # Adiciona cliente validando os valores informados
         cliente = Cliente(nome=nome, cpf=cpf, telefone=telefone, email=email)
     except ValueError as e:
@@ -123,8 +148,8 @@ def cancelar_reserva():
 
     # Parâmetros
     print('Dados da reserva:')
-    data=input('Digite a data no formato yyyy-mm-dd:')
-    hora_ini=input('Informe horário de início:')
+    data=input_value('Digite a data no formato yyyy-mm-dd:', 'date')
+    hora_ini=input_value('Informe horário de início:', 'int', range(9, 23))
 
     # Chamada
     reserva = agenda.cancelar_reserva(data=data, hora_inicio=hora_ini)
@@ -140,17 +165,17 @@ def cancelar_reserva():
 
     wait_key()
 
-# Opção 5 = Cancelar quadra para cliente
+# Opção 5 = Pagar quadra cliente
 def pagar_reserva():
     print('----------------------------------------------------------------')
     print('-- PAGAR UMA RESERVA')
 
     # Parâmetros
     print('Dados da reserva:')
-    data=input('Digite a data no formato yyyy-mm-dd:')
-    hora_ini=input('Informe horário de início:')
+    data=input_value('Digite a data no formato yyyy-mm-dd:', 'date')
+    hora_ini=input_value('Informe horário de início:', 'int', range(9, 23))
     print('Dados pagamento:')
-    data_pago = input('Digite a data de pagamento no formato yyyy-mm-dd:')
+    data_pago = input_value('Digite a data de pagamento no formato yyyy-mm-dd:', 'date')
 
     # Chamada
     reserva = agenda.pagar_reserva(data=data, hora_inicio=hora_ini, data_pago=data_pago)
@@ -254,7 +279,7 @@ while (opt != 7):
 
         ''')
 
-    opt = int(input("Digite sua opção: "))
+    opt = input_value("Digite sua opção: ", "int", range(1, 8))
 
     
    
