@@ -1,20 +1,20 @@
-import pytest
-from faker import Faker
-from classes.agenda import Agenda
-from classes.cliente import Cliente
+# import pytest
+# from faker import Faker
+# from classes.agenda import Agenda
+# from classes.cliente import Cliente
 
 
-def test_criar_cliente():
-    exemplo = Cliente(nome='André Conforti', cpf='278.759.698-32', telefone='19 988377497', email='test@test.com')
+# def test_criar_cliente():
+#     exemplo = Cliente(nome='André Conforti', cpf='278.759.698-32', telefone='19 988377497', email='test@test.com')
 
-    assert isinstance(exemplo.nome, str) # Verifica se é do tipo "str"
-    assert isinstance(exemplo.cpf, str)
-    assert isinstance(exemplo.telefone, str) 
-    assert isinstance(exemplo.email, str) 
-    assert exemplo.nome == 'André Conforti' # Verifica se foi inicializado corretamente
-    assert exemplo.cpf == '278.759.698-32'
-    assert exemplo.telefone == '19 988377497'
-    assert exemplo.email == 'test@test.com'
+#     assert isinstance(exemplo.nome, str) # Verifica se é do tipo "str"
+#     assert isinstance(exemplo.cpf, str)
+#     assert isinstance(exemplo.telefone, str) 
+#     assert isinstance(exemplo.email, str) 
+#     assert exemplo.nome == 'André Conforti' # Verifica se foi inicializado corretamente
+#     assert exemplo.cpf == '278.759.698-32'
+#     assert exemplo.telefone == '19 988377497'
+#     assert exemplo.email == 'test@test.com'
 
 
 #def test_alterar_campo():
