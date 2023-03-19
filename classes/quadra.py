@@ -21,25 +21,25 @@ class Quadra_BeachTenis(Locacao):
    #    self.drenagem = drenagem
 
     def get_locacao_info(self):
-        return f"A quadra de Beach Tênis '{self.nome}' atende de {self.min_players} a {self.max_players} participantes."
+        return f"A quadra de Beach Tênis '{self.nome_quadra}' atende de {self.min_players} a {self.max_players} participantes."
 
     def drenagem(self):
         if self.drenagem:
-            return f"{self.nome} possui drenagem."
+            return f"{self.nome_quadra} possui drenagem."
         
-        return f"{self.nome} não possui drenagem"
+        return f"{self.nome_quadra} não possui drenagem"
         
-class Quadra_Futebol(Locacao):
-    gramado: str
-    locar_bola: bool
+# class Quadra_Futebol(Locacao):
+#     gramado: str
+#     locar_bola: bool
 
-    def get_locacao_info(self):
-        if self.locar_bola:
-            bola_reservada = "Bola reservada."
-        else:
-            bola_reservada = "Sem reserva de bola."
+#     def get_locacao_info(self):
+#         if self.locar_bola:
+#             bola_reservada = "Bola reservada."
+#         else:
+#             bola_reservada = "Sem reserva de bola."
 
-        return f"A quadra de Futebol '{self.nome}' atende de {self.min_players} a {self.max_players} participantes. {bola_reservada}"
+#         return f"A quadra de Futebol '{self.nome}' atende de {self.min_players} a {self.max_players} participantes. {bola_reservada}"
 
 '''
 quadra_beachtenis = Quadra_BeachTenis.parse_obj({'nome':"Quadra 1", 'min_players': 2, 'max_players': 4, 'drenagem':False})

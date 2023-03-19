@@ -114,23 +114,23 @@ class Agenda(BaseModel):
         
         return False
     
-    def agendar(self, cliente, data, hora_ini, duracao, quadra):
-        logger = Logger()
+    # def agendar(self, cliente, data, hora_ini, duracao, quadra):
+    #     logger = Logger()
 
-        quadras = self.quadra_disponivel (data, hora_ini, duracao, quadra)
-        logger.log('debug', '----------------------------------------------------------------')
-        if not quadras:
-            # TODO: retorna erro?
-            return []
+    #     quadras = self.quadra_disponivel (data, hora_ini, duracao, quadra)
+    #     logger.log('debug', '----------------------------------------------------------------')
+    #     if not quadras:
+    #         # TODO: retorna erro?
+    #         return []
         
-        try:
-            reserva = Reserva(cliente=cliente, quadra=quadras[0], data=data, hora_inicio=hora_ini, duracao = duracao)
-        except ValueError as e:
-            logger.log('warning', (str(e)))
-            return []
+    #     try:
+    #         reserva = Reserva(cliente=cliente, quadra=quadras[0], data=data, hora_inicio=hora_ini, duracao = duracao)
+    #     except ValueError as e:
+    #         logger.log('warning', (str(e)))
+    #         return []
         
-        self.reservas.append(reserva)
-        return quadras[0]
+    #     self.reservas.append(reserva)
+    #     return quadras[0]
     
     def make_reg(reserva):
         registro = dict()
